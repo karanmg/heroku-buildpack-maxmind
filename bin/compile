@@ -27,15 +27,23 @@ download(){
 	DB="$CACHE_DIR/$EDITION.mmdb"
 
 	if [ -f $TAR ]; then
-    modified=$(curl --silent --head $URL | \
-                 awk '/^[Ll]ast-[Mm]odified/{print $0}' | \
-                 sed 's/^[Ll]ast-[Mm]odified: //')
-    echo "-----> $EDITION: modified $modified"
-    remote_ctime=$(date --date="$modified" +%s)
-    local_ctime=$(stat -c %y "$TAR")
-    local_ctime=$(date --date="$local_ctime" +%s)
-    if [ $local_ctime -lt $remote_ctime ]; then
-      newer_version=true
+    response=$(curl --silent --head $URL | tee \
+                      >(awk '/HTTP\/2 /{print $0}') \
+                      >(awk '/^[Ll]ast-[Mm]odified/{print $0}') \
+                      > /dev/null )
+    code=$(echo "$response" | grep 'HTTP\/2' | sed 's/^HTTP\/2 //')
+    if [[ "$code" != *"200"* ]]; then
+      echo "WARNING $EDITION: Unable to reach Maxmind, received: $code"
+      newer_version=false
+    else
+      modified=$(echo "$response" | grep '[Ll]ast-[Mm]odified' |  sed 's/^[Ll]ast-[Mm]odified: //')
+      echo "-----> $EDITION: modified $modified"
+      remote_ctime=$(date --date="$modified" +%s)
+      local_ctime=$(stat -c %y "$TAR")
+      local_ctime=$(date --date="$local_ctime" +%s)
+      if [ $local_ctime -lt $remote_ctime ]; then
+        newer_version=true
+      fi
     fi
   fi
 
