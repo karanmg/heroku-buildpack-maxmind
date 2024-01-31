@@ -3,44 +3,12 @@
 require 'date'
 require 'net/http'
 
-log "starting"
-
 # Exit if any command fails
 def exit_on_failure
   yield
 rescue => e
   puts e.message
   exit 1
-end
-
-build_dir = ARGV[0]
-cache_dir = ARGV[1]
-env_dir   = ARGV[2]
-
-log "build_dir => #{build_dir}"
-log "cache_dir => #{cache_dir}"
-log "env_dir => #{env_dir}"
-
-maxmind_key_path = File.join(env_dir, 'MAXMIND_KEY')
-unless File.exist?(maxmind_key_path)
-  log "You must define the environment variable MAXMIND_KEY with your license key."
-  exit 1
-end
-
-maxmind_key = File.read(maxmind_key_path).strip
-maxmind_editions = File.read(File.join(env_dir, 'MAXMIND_EDITIONS')).strip
-
-log "Creating cache dir [#{cache_dir}] (if it doesn't exist)"
-Dir.mkdir(cache_dir) unless Dir.exist?(cache_dir)
-
-log "Download editions => #{maxmind_editions}"
-editions = maxmind_editions.split(', ')
-
-editions.each do |edition|
-  exit_on_failure do
-    log "Starting download edition => #{edition}"
-    download(edition, maxmind_key, cache_dir, build_dir)
-  end
 end
 
 def download(edition, maxmind_key, cache_dir, build_dir)
@@ -98,4 +66,36 @@ end
 
 def log(message)
   puts "-----> [MaxMind Buildpack] #{message}"
+end
+
+log "starting"
+
+build_dir = ARGV[0]
+cache_dir = ARGV[1]
+env_dir   = ARGV[2]
+
+log "build_dir => #{build_dir}"
+log "cache_dir => #{cache_dir}"
+log "env_dir => #{env_dir}"
+
+maxmind_key_path = File.join(env_dir, 'MAXMIND_KEY')
+unless File.exist?(maxmind_key_path)
+  log "You must define the environment variable MAXMIND_KEY with your license key."
+  exit 1
+end
+
+maxmind_key = File.read(maxmind_key_path).strip
+maxmind_editions = File.read(File.join(env_dir, 'MAXMIND_EDITIONS')).strip
+
+log "Creating cache dir [#{cache_dir}] (if it doesn't exist)"
+Dir.mkdir(cache_dir) unless Dir.exist?(cache_dir)
+
+log "Download editions => #{maxmind_editions}"
+editions = maxmind_editions.split(', ')
+
+editions.each do |edition|
+  exit_on_failure do
+    log "Starting download edition => #{edition}"
+    download(edition, maxmind_key, cache_dir, build_dir)
+  end
 end
