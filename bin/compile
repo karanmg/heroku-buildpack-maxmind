@@ -24,7 +24,18 @@ end
 maxmind_key = File.read(maxmind_key_path).strip
 maxmind_editions = File.read(File.join(env_dir, 'MAXMIND_EDITIONS')).strip
 
+puts "-----> Creating cache dir #{cache_dir} (if it doesn't exist)"
 Dir.mkdir(cache_dir) unless Dir.exist?(cache_dir)
+
+puts "-----> MaxMind Buildpack: RUBY Download #{maxmind_editions}"
+editions = maxmind_editions.split(', ')
+
+editions.each do |edition|
+  exit_on_failure do
+    puts "-----> MaxMind Buildpack: RUBY Downloading #{edition}"
+    download(edition, maxmind_key, cache_dir, build_dir)
+  end
+end
 
 # def download(edition, maxmind_key, cache_dir, build_dir)
 #   url = "https://download.maxmind.com/app/geoip_download?edition_id=#{edition}&suffix=tar.gz&license_key=#{maxmind_key}"
@@ -75,12 +86,3 @@ Dir.mkdir(cache_dir) unless Dir.exist?(cache_dir)
 #   File.rename(db, output)
 #   File.rename(tar_new, tar) rescue nil
 # end
-
-editions = maxmind_editions.split(', ')
-
-editions.each do |edition|
-  exit_on_failure do
-    # download(edition, maxmind_key, cache_dir, build_dir)
-    puts "-----> #{edition}: Downloading #{edition}"
-  end
-end
