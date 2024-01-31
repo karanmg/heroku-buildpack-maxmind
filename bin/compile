@@ -57,9 +57,9 @@ def download(edition, maxmind_key, cache_dir, build_dir)
     end
   end
 
-  output = File.join(build_dir, edition)
-  log "#{edition}: Moving #{db} to #{output}"
-  File.rename(db, output)
+  # output = File.join(build_dir, edition)
+  # log "#{edition}: Moving #{db} to #{output}"
+  # File.rename(db, output)
   log "#{edition}: Moving #{tar_new} to #{tar}"
   File.rename(tar_new, tar) rescue nil
 end
@@ -74,9 +74,9 @@ build_dir = ARGV[0]
 cache_dir = ARGV[1]
 env_dir   = ARGV[2]
 
-log "build_dir => #{build_dir}"
-log "cache_dir => #{cache_dir}"
-log "env_dir => #{env_dir}"
+log "build_dir  => #{build_dir}"
+log "cache_dir  => #{cache_dir}"
+log "env_dir    => #{env_dir}"
 
 maxmind_key_path = File.join(env_dir, 'MAXMIND_KEY')
 unless File.exist?(maxmind_key_path)
