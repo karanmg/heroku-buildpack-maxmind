@@ -65,6 +65,8 @@ def download(edition, maxmind_key, cache_dir, build_dir)
   File.rename(tar_new, tar) rescue nil
 
   log File.exist?(output) ? "#{edition}: Database file available at #{output}" : "#{edition}: Database file NOT available at #{output}"
+  log File.exist?("#{output}.mmdb") ? "#{edition}: Database file available at #{output}.mmdb" : "#{edition}: Database file NOT available at #{output}.mmdb"
+  log File.exist?("#{output}/GeoLite2-City.mmdb") ? "#{edition}: Database file available at #{output}/GeoLite2-City.mmdb" : "#{edition}: Database file NOT available at #{output}/GeoLite2-City.mmdb"
 
   log "#{edition}: DONE. DB file available at #{output}"
 end
