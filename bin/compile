@@ -62,6 +62,8 @@ def download(edition, maxmind_key, cache_dir, build_dir)
   # File.rename(db, output)
   log "#{edition}: Moving #{tar_new} to #{tar}"
   File.rename(tar_new, tar) rescue nil
+
+  log "#{edition}: DONE. DB file available at #{cache_dir}/#{edition}.mmdb"
 end
 
 def log(message)
