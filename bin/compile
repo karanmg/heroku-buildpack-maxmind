@@ -21,15 +21,15 @@ def download(edition, maxmind_key, cache_dir, build_dir)
   newer_version = false
 
   if File.exist?(tar)
-    log "#{edition}: Checking for newer version of the TAR file on the server"
+    log "Checking for newer version of the TAR file on the server"
     uri = URI(url)
     response = Net::HTTP.get_response(uri)
 
     if response.code != '200'
-      log "WARNING #{edition}: Unable to reach Maxmind, received: #{response.code}"
+      log "WARNING: Unable to reach Maxmind, received: #{response.code}"
     else
       modified = response['last-modified']
-      log "#{edition}: modified #{modified}"
+      log "Modified #{modified}"
       remote_ctime = DateTime.parse(modified).to_time.to_i
       local_ctime = File.mtime(tar).to_i
 
@@ -38,37 +38,37 @@ def download(edition, maxmind_key, cache_dir, build_dir)
   end
 
   if !File.exist?(tar) || newer_version
-    log "#{edition}: #{newer_version ? 'Found newer version of the TAR file on the server, downloading.' : 'Database does not exist in cache, downloading.'}"
+    log "#{newer_version ? 'Found newer version of the TAR file on the server, downloading.' : 'Database does not exist in cache, downloading.'}"
     File.write(tar_new, Net::HTTP.get(URI(url)))
   else
-    log "#{edition}: Database already exists in cache and it's up to date."
+    log "Database already exists in cache and it's up to date."
     tar_new = tar
   end
 
-  log "#{edition}: Extracting #{tar_new} to #{cache_dir}"
+  log "Extracting #{tar_new} to #{cache_dir}"
   system("tar -zxvf #{tar_new} -C #{cache_dir} --no-anchored --strip-components=1 #{edition}.mmdb")
 
   if $?.exitstatus != 0
     if newer_version
-      log "WARNING #{edition}: Could not download TAR file! Using old cached version."
+      log "WARNING: Could not download TAR file! Using old cached version."
     else
-      log "ERROR #{edition}: Could not download TAR file! Cannot continue!!!"
+      log "ERROR: Could not download TAR file! Cannot continue!!!"
       exit 1
     end
   end
 
   # output = File.join(build_dir, edition)
-  output = File.join(cache_dir, edition)
-  log "#{edition}: Moving #{db} to #{output}"
-  File.rename(db, output)
-  log "#{edition}: Moving #{tar_new} to #{tar}"
+  # output = File.join(cache_dir, edition)
+  # log "Moving #{db} to #{output}"
+  # File.rename(db, output)
+  log "Moving #{tar_new} to #{tar}"
   File.rename(tar_new, tar) rescue nil
 
-  log File.exist?(output) ? "#{edition}: Database file available at #{output}" : "#{edition}: Database file NOT available at #{output}"
-  log File.exist?("#{output}.mmdb") ? "#{edition}: Database file available at #{output}.mmdb" : "#{edition}: Database file NOT available at #{output}.mmdb"
-  log File.exist?("#{output}/GeoLite2-City.mmdb") ? "#{edition}: Database file available at #{output}/GeoLite2-City.mmdb" : "#{edition}: Database file NOT available at #{output}/GeoLite2-City.mmdb"
+  log File.exist?(output) ? "Database file available at #{output}" : "Database file NOT available at #{output}"
+  log File.exist?("#{output}.mmdb") ? "Database file available at #{output}.mmdb" : "Database file NOT available at #{output}.mmdb"
+  log File.exist?("#{output}/GeoLite2-City.mmdb") ? "Database file available at #{output}/GeoLite2-City.mmdb" : "Database file NOT available at #{output}/GeoLite2-City.mmdb"
 
-  log "#{edition}: DONE. DB file available at #{output}"
+  log "DONE."
 end
 
 def log(message)
