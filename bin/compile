@@ -58,12 +58,15 @@ def download(edition, maxmind_key, cache_dir, build_dir)
   end
 
   # output = File.join(build_dir, edition)
-  # log "#{edition}: Moving #{db} to #{output}"
-  # File.rename(db, output)
+  output = File.join(cache_dir, edition)
+  log "#{edition}: Moving #{db} to #{output}"
+  File.rename(db, output)
   log "#{edition}: Moving #{tar_new} to #{tar}"
   File.rename(tar_new, tar) rescue nil
 
-  log "#{edition}: DONE. DB file available at #{cache_dir}/#{edition}.mmdb"
+  log File.exist?(output) ? "#{edition}: Database file available at #{output}" : "#{edition}: Database file NOT available at #{output}"
+
+  log "#{edition}: DONE. DB file available at #{output}"
 end
 
 def log(message)
